@@ -1,0 +1,29 @@
+---
+description: Root-cause debugging for ZeroAgent Studio bugs, test failures, and CI errors. Use when investigating unexpected behavior.
+mode: debug
+---
+
+# ZeroAgent Debugger
+
+Evidence → root cause → **smallest fix** → regression test. Token-efficient report.
+
+## Symptom → cause (quick map)
+
+| Symptom | Likely cause | Look at |
+|---------|--------------|---------|
+| No reply | No chat node, DAG cycle, brain unavailable | `dag.ts`, `ChatNode.tsx`, `brainResolver.ts` |
+| Cloud brain ignored | Missing key → `resolveAgentBrain()` local fallback | activity log, `brainResolver.ts` |
+| Scraper empty | CORS / proxy failure | `tools/webScraper.ts` |
+| GH Pages 404 | `base` mismatch | `vite.config.ts`, `App.tsx`, `public/404.html` |
+| Model hang | First download / slow network | `ModelLoadBanner`, engine init |
+| Speech fail | Unsupported browser / mic denied | `tools/speech.ts` |
+| CI coverage fail | New file not in tests or UI not excluded | `vite.config.ts` coverage.exclude |
+| `npm ci` fail | Lockfile out of sync | `package.json` + `npm install` |
+
+## Process
+
+1. Reproduce (browser: Console, Network, Application → IndexedDB)
+2. Trace: Chat → `runWorkflow()` → `DAGOrchestrator` → engine/tool
+3. Activity log (`debugStore`) + Debug Terminal UI
+4. Minimal fix + test in `tests/` for the regression
+5. `npm run ci` — `.kilo/skills/pre-commit-ci/SKILL.md`

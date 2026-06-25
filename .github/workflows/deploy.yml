@@ -1,0 +1,63 @@
+name: Deploy ZeroAgent Studio to GitHub Pages
+
+# Triggers: every push to main/master, plus manual trigger.
+# PRs are intentionally NOT deployed (they run through ci.yml).
+#
+# GitHub Pages is free for PUBLIC repositories on the Free plan.
+# Enable once: Settings → Pages → Source → GitHub Actions.
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never run two deploys in parallel — Pages deployments must be sequential.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js toolchain
+        uses: ./.github/actions/setup-node
+
+      # We deliberately do NOT re-run the full `npm run ci` here.
+      # The CI workflow already gates every commit on the same script.
+      # Branch protection should require the `CI` check before merge.
+      # `npm run build` still catches TypeScript errors as defense-in-depth.
+
+      - name: Build production bundle
+        run: npm run build
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: ./dist
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    if: github.event.repository.fork == false
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

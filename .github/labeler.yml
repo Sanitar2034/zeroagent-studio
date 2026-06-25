@@ -1,0 +1,46 @@
+# Labeler rules consumed by .github/workflows/labeler.yml
+# https://github.com/actions/labeler
+
+ci:
+  - changed-files:
+      - any-glob-to-any-file: '.github/**'
+
+infrastructure:
+  - changed-files:
+      - any-glob-to-any-file: '.github/**'
+
+dependencies:
+  - changed-files:
+      - any-glob-to-any-file:
+          - package.json
+          - package-lock.json
+
+code:
+  - changed-files:
+      - any-glob-to-any-file: src/**
+
+tests:
+  - changed-files:
+      - any-glob-to-any-file:
+          - tests/**
+          - '**/*.test.ts'
+          - '**/*.test.tsx'
+
+tools:
+  - changed-files:
+      - any-glob-to-any-file: src/tools/**
+
+security:
+  - changed-files:
+      - any-glob-to-any-file:
+          - SECURITY.md
+          - docs/SECURITY.md
+          - src/lib/keyStorage.ts
+          - src/tools/customScript.ts
+
+documentation:
+  - changed-files:
+      - any-glob-to-any-file:
+          - docs/**
+          - '*.md'
+          - SECURITY.md

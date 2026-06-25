@@ -1,0 +1,29 @@
+name: Feature Request
+description: Suggest an improvement for ZeroAgent Studio
+title: '[Feature]: '
+labels: ['enhancement']
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or goal
+      description: What are you trying to do? Who benefits (students, makers, …)?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: How would you like it to work?
+    validations:
+      required: true
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope hints
+      options:
+        - label: New browser tool or manifest preset
+        - label: New AI brain / provider
+        - label: Tutorial / quest improvement
+        - label: Documentation only
+        - label: Performance / accessibility

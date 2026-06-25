@@ -1,0 +1,8 @@
+# CODEOWNERS — automatically requests reviews from listed owners.
+# On the Free plan, enforcement requires branch protection rules.
+
+*                           @sakurablush
+/.github/                   @sakurablush
+SECURITY.md                 @sakurablush
+src/lib/keyStorage.ts       @sakurablush
+src/tools/customScript.ts   @sakurablush
