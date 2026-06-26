@@ -1,0 +1,32 @@
+---
+description: Run npm run ci before commit, PR readiness, or fixing CI in ZeroAgent Studio. Use when implementing, committing, or marking merge-ready.
+globs: src/**/*.{ts,tsx}, tests/**/*.{ts,tsx}, package.json, package-lock.json, .cursor/**/*
+alwaysApply: false
+---
+
+# Pre-Commit Quality Gate
+
+Before **any** commit or merge-ready sign-off:
+
+```bash
+npm ci          # exact lockfile install (CI / clean machine)
+npm run ci      # full gate
+```
+
+**Chain:** `audit` → `lint` → `typecheck` → `test:coverage` → `build`
+
+## Requirements
+
+1. Exit code **0** — never commit on red
+2. `npm audit --audit-level=moderate`: **0 vulnerabilities**
+3. `test:coverage`: **100%** on included `src/` (see `vite.config.ts`)
+4. Lockfile synced: commit `package.json` + `package-lock.json` together after dep changes
+
+## Pitfalls
+
+- `base: './'` in `vite.config.ts` — works on any GitHub Pages subpath
+- Dynamic `import()` for WebLLM / Transformers.js
+- No backend packages (express, prisma, …)
+- Deprecation warnings: check `overrides` in `package.json` if `npm ci` warns
+
+**Workflow:** `.cursor/skills/pre-commit-ci/SKILL.md`

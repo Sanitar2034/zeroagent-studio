@@ -1,0 +1,72 @@
+version: 2
+
+# Dependabot is free for public repositories.
+# Grouped PRs are verified by .github/workflows/ci.yml (merge gate).
+
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+      timezone: UTC
+    open-pull-requests-limit: 10
+    target-branch: main
+    commit-message:
+      prefix: deps
+    labels:
+      - dependencies
+      - automated
+    groups:
+      vite-and-react:
+        applies-to: version-updates
+        patterns:
+          - vite
+          - '@vitejs/*'
+          - react
+          - react-dom
+          - '@types/react*'
+      testing:
+        applies-to: version-updates
+        patterns:
+          - vitest*
+          - '@vitest/*'
+          - '@testing-library/*'
+          - jsdom
+      typescript-and-lint:
+        applies-to: version-updates
+        patterns:
+          - typescript
+          - typescript-eslint*
+          - eslint*
+          - '@eslint/*'
+      ai-runtimes:
+        applies-to: version-updates
+        patterns:
+          - '@huggingface/*'
+          - '@mlc-ai/*'
+      security-updates:
+        applies-to: security-updates
+        patterns:
+          - '*'
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+      timezone: UTC
+    open-pull-requests-limit: 5
+    target-branch: main
+    commit-message:
+      prefix: ci
+    labels:
+      - dependencies
+      - ci
+      - automated
+    groups:
+      github-actions:
+        patterns:
+          - '*'

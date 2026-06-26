@@ -1,0 +1,46 @@
+name: CI
+
+# Triggers: every push to main/master + every PR targeting those branches.
+# Uses minimal scopes (contents: read) for least privilege.
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+# Cancel superseded PR runs to save Actions minutes and runner concurrency slots.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    name: Lint · Typecheck · Test · Build · Audit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js toolchain
+        uses: ./.github/actions/setup-node
+
+      # Single source of truth: package.json `ci` script (audit → lint → typecheck →
+      # test:coverage at 100% → build). Keep this workflow and the PR template aligned.
+      - name: Lint · typecheck · test · build · audit
+        run: npm run ci
+
+      - name: Upload coverage artifact
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 30
+          if-no-files-found: ignore

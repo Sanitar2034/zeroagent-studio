@@ -1,0 +1,22 @@
+name: Dependency review
+
+# Flags vulnerable or incompatible dependency changes on pull requests.
+# Complements CodeQL and npm audit in CI.
+# https://docs.github.com/en/code-security/supply-chain-security
+
+on:
+  pull_request:
+    branches: [main, master]
+
+permissions:
+  contents: read
+
+jobs:
+  dependency-review:
+    name: Review dependency changes
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+
+    steps:
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v5

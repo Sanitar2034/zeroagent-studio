@@ -1,0 +1,241 @@
+{
+  // ===========================================================================
+  // kilo.jsonc — ZeroAgent Studio
+  // ===========================================================================
+  // Central config for Kilo Code (VS Code extension, CLI, Cloud).
+  // Precedence: env < remote < global < project kilo.json < .kilo/kilo.json
+  // Deep-merged; later keys win. Do NOT commit provider.apiKey values —
+  // use env vars or the per-user UI. Schema enables VS Code autocomplete.
+  // ===========================================================================
+
+  "$schema": "https://app.kilo.ai/config.json",
+
+  // ---------------------------------------------------------------------------
+  // Default agent — `code` is the built-in engineer. Switch with /agents.
+  // `plan` (architecture), `ask` (read-only Q&A), `debug` (root-cause) are
+  // also built-in. Our custom ZeroAgent personas live in .kilo/agents/*.md.
+  // ---------------------------------------------------------------------------
+  "default_agent": "code",
+
+  // ---------------------------------------------------------------------------
+  // Session sharing & checkpoints
+  //   - share: "manual" = user must explicitly share a session
+  //   - snapshot: true = git snapshot/rollback safety net for AI edits
+  //   - autoupdate: "notify" = Kilo tells you about updates, never forces them
+  // ---------------------------------------------------------------------------
+  "share": "manual",
+  "snapshot": true,
+  "autoupdate": "notify",
+
+  // ---------------------------------------------------------------------------
+  // Context compaction — auto-summarize when context fills, prune old tool
+  // outputs to keep the active context lean.
+  // ---------------------------------------------------------------------------
+  "compaction": {
+    "auto": true,
+    "prune": true
+  },
+
+  // ---------------------------------------------------------------------------
+  // Instructions — loaded into system prompt at session start (filesystem
+  // order). Mirrors what Cursor loads from .cursor/rules/*.mdc but in the
+  // Kilo-native format (plain .md, simpler frontmatter).
+  // ---------------------------------------------------------------------------
+  "instructions": [
+    "AGENTS.md",
+    ".kilo/rules/*.md"
+  ],
+
+  // ---------------------------------------------------------------------------
+  // Permissions — defense in depth on top of .kilocodeignore.
+  // Top-to-bottom, LAST matching rule wins. Put broad patterns first, then
+  // specific overrides after.
+  //
+  // Tool keys: read, edit, glob, grep, list, bash, task, webfetch, websearch,
+  //            skill, external_directory, todowrite, question, doom_loop.
+  // ---------------------------------------------------------------------------
+  "permission": {
+
+    // -------- File reading (broad allow, secrets/builds denied) -----------
+    "read": {
+      // Allow the project by default
+      "*": "allow",
+      // Defense-in-depth: even if a glob allows it, hard-block secrets & noise
+      ".env": "deny",
+      ".env.*": "deny",
+      "**/.env": "deny",
+      "**/.env.*": "deny",
+      "**/*.pem": "deny",
+      "**/*.key": "deny",
+      "**/*.p12": "deny",
+      "**/*.pfx": "deny",
+      "**/*id_rsa*": "deny",
+      "**/*id_ed25519*": "deny",
+      "**/*id_ecdsa*": "deny",
+      "**/*.gpg": "deny",
+      "**/*.asc": "deny",
+      "**/.netrc": "deny",
+      "**/credentials/**": "deny",
+      "**/secrets/**": "deny",
+      "**/.aws/**": "deny",
+      "**/.gcp/**": "deny",
+      "**/.azure/**": "deny",
+      "**/.gcloud/**": "deny",
+      "**/.ssh/**": "deny",
+      "node_modules/**": "deny",
+      "dist/**": "deny",
+      "coverage/**": "deny",
+      "**/*.tsbuildinfo": "deny",
+      "**/*.map": "deny"
+    },
+
+    // -------- File editing (broad allow, locks & configs guarded) ---------
+    "edit": {
+      "*": "allow",
+      // Same secret + build blocks as read
+      ".env": "deny",
+      ".env.*": "deny",
+      "**/.env": "deny",
+      "**/.env.*": "deny",
+      "**/*.pem": "deny",
+      "**/*.key": "deny",
+      "**/*.p12": "deny",
+      "**/*.pfx": "deny",
+      "**/*id_rsa*": "deny",
+      "**/*id_ed25519*": "deny",
+      "**/*id_ecdsa*": "deny",
+      "**/*.gpg": "deny",
+      "**/*.asc": "deny",
+      "**/.netrc": "deny",
+      "**/credentials/**": "deny",
+      "**/secrets/**": "deny",
+      "**/.aws/**": "deny",
+      "**/.gcp/**": "deny",
+      "**/.azure/**": "deny",
+      "**/.gcloud/**": "deny",
+      "**/.ssh/**": "deny",
+      "dist/**": "deny",
+      "coverage/**": "deny",
+      // Lockfile and config guarded — ask before touching supply-chain files
+      "package-lock.json": "ask",
+      "package.json": "ask",
+      "scripts/**": "ask",
+      ".github/workflows/**": "ask",
+      ".github/CODEOWNERS": "ask",
+      "vite.config.ts": "ask",
+      "tsconfig*.json": "ask",
+      "eslint.config.js": "ask",
+      "vitest.config*": "ask"
+    },
+
+    // -------- Glob / grep / list — read-only filesystem scans -----------
+    "glob": "allow",
+    "grep": "allow",
+    "list": "allow",
+
+    // -------- Bash — granular allowlist for the project's scripts ---------
+    // Specific commands auto-approved; everything else asks.
+    // Patterns are fnmatch-style: trailing * matches anything after.
+    // Note: `npm install` falls through to "*": "ask" on purpose — adding new
+    //       dependencies is a deliberate action that should require approval.
+    "bash": {
+      "*": "ask",
+      "git status": "allow",
+      "git log *": "allow",
+      "git diff *": "allow",
+      "git show *": "allow",
+      "git branch": "allow",
+      "git remote -v": "allow",
+      "git rev-parse *": "allow",
+      "ls *": "allow",
+      "pwd": "allow",
+      "cat *": "allow",
+      "head *": "allow",
+      "tail *": "allow",
+      "wc *": "allow",
+      "node -v": "allow",
+      "npm -v": "allow",
+      "npm ci": "allow",
+      "npm test": "allow",
+      "npm test *": "allow",
+      "npm test:*": "allow",
+      "npm run test*": "allow",
+      "npm run test:*": "allow",
+      "npm run lint": "allow",
+      "npm run typecheck": "allow",
+      "npm run build": "allow",
+      "npm run ci": "allow",
+      "npm run dev": "allow",
+      "npm run preview": "allow",
+      "npm run deploy": "ask",
+      "npm audit*": "allow",
+      "npm view *": "allow",
+      "npx vitest *": "allow",
+      "npx eslint *": "allow",
+      "npx tsc *": "allow",
+      "npx vite *": "allow",
+      "rg *": "allow",
+      "find *": "allow",
+      "echo *": "allow",
+      "true": "allow",
+      "false": "allow"
+    },
+
+    // -------- Network — allow read-only docs, ask for arbitrary fetch ----
+    "webfetch": "ask",
+    "websearch": "ask",
+
+    // -------- Skills (Kilo's domain playbooks) ----------------------------
+    "skill": {
+      "pre-commit-ci": "allow",
+      "ship-patch": "allow",
+      "release-versioning": "allow",
+      "review-before-merge": "allow",
+      "add-browser-tool": "allow",
+      "add-brain-provider": "allow"
+    },
+
+    // -------- Subagent delegation ---------------------------------------
+    "task": "allow",
+
+    // -------- Working directory lock — Kilo must stay inside the repo ----
+    "external_directory": "deny",
+
+    // -------- Interactive helpers -----------------------------------------
+    "todowrite": "allow",
+    "question": "allow"
+  },
+
+  // ---------------------------------------------------------------------------
+  // File watcher fast-list exclusions (top-level, NOT inside permission).
+  // Mirrors the patterns in .kilocodeignore / .cursorignore so the file
+  // watcher never re-scans ephemeral or credential paths.
+  // ---------------------------------------------------------------------------
+  "watcher": {
+    "ignore": [
+      "node_modules/**",
+      "dist/**",
+      "coverage/**",
+      ".kilo/plans/**",
+      ".kilo/worktrees/**",
+      ".kilo/sessions/**",
+      ".kilo/logs/**",
+      ".kilo/scratch/**",
+      ".kilo/snapshots/**",
+      ".kilo/agent-manager.json",
+      ".cursor/plans/**",
+      ".claude/plans/**",
+      ".playwright-mcp/**",
+      "**/*.log"
+    ]
+  },
+
+  // ---------------------------------------------------------------------------
+  // Skills discovery — Kilo scans .kilo/skills/<name>/SKILL.md by default.
+  // We list the path explicitly so the discovery is unambiguous and the
+  // path is relative to the project root.
+  // ---------------------------------------------------------------------------
+  "skills": {
+    "paths": ["./.kilo/skills"]
+  }
+}

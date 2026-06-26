@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://sakurablush.github.io/zeroagent-studio/sitemap.xml

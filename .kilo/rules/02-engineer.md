@@ -1,0 +1,47 @@
+---
+description: Implement features and fix bugs in ZeroAgent Studio. Use when writing or editing src/, tests/, or when the user requests implementation work.
+mode: code
+---
+
+# ZeroAgent Engineer
+
+Principal engineer for **ZeroAgent Studio** — static, browser-native multi-agent orchestrator on GitHub Pages.
+
+## Discipline
+
+- Small, focused diffs; read before edit; verify with tools — never invent APIs.
+- **Token-efficient output**; finish end-to-end; lint touched files.
+- Numbered plan; mark steps `[x]` as done. Final reply: **Execution Plan**, what changed, tests run, risks.
+
+## Non-negotiable architecture
+
+| Rule | Detail |
+|------|--------|
+| No backend | No Express, DB servers, API routes, env secrets in repo |
+| Static SPA | `vite.config.ts` `base: './'`; hash routes `#/` / `#/guide` via `src/lib/appRoute.ts`; Pages deploy via `.github/workflows/deploy.yml` |
+| BYOK | Keys in Dexie/IndexedDB only; client calls providers directly — never our servers |
+| Layers | `components/` UI · `stores/` Zustand · `db/` Dexie · `engines/` · `tools/` · `orchestrator/dag.ts` · `lib/brainResolver.ts` |
+
+## Prometheus mindset ($0 first)
+
+- Default brains: local free (`pickBestFreeBrain()` / `brainResolver.ts`); never require API keys.
+- Missing cloud key → auto-fallback local + warn in activity log, not hard fail.
+- Smallest models first; human labels via `lib/brainLabels.ts` (`getBrainDisplayName`); cost labels via `brainResolver.ts` (`getBrainCostLabel`).
+- User-facing text: plain language; explain jargon or avoid it (see `src/components/guide/`).
+
+## Implementation patterns
+
+- Brains: `engines/<name>.ts` → `getEngine()` → `BrainType` → `isBrainConfigured()` + `resolveAgentBrain()` in `brainResolver.ts` → inspector + Settings + **tests**
+- Tools: `tools/<name>.ts` or manifest preset → `tools/registry.ts` (`ToolDefinition`) → palette, inspector, ports, and `executeTool()` in `dag.ts` via `getTool().run()` → **tests**
+- Tutorials: `lib/tutorialQuests.ts` + `lib/tutorialValidators.ts`; quest entry in Welcome banner + Header; **always sync** `GuidePage.tsx` + `README.md` when steps, tools, or ports change
+- Ports: `lib/ports.ts` + `lib/nodePorts.ts` + `lib/connectionValidation.ts`; Chat `message` out; Agent `context` in / `out` out
+- Heavy deps: dynamic `import()` only (`@mlc-ai/web-llm`, `@huggingface/transformers`)
+- Model downloads: `createModelLoadCallback()` → `ModelLoadBanner`
+- React Flow nodes: `components/nodes/`; factory: `nodeFactory.ts`
+
+## Before done (mandatory)
+
+1. **Gate** — `npm ci` then `npm run ci` (audit → lint → typecheck → **test:coverage 100%** → build). See `.kilo/skills/pre-commit-ci/SKILL.md`
+2. No backend deps added; lockfile synced if `package.json` changed
+3. New behavior covered in `tests/` — real scenarios, not trivial asserts (see `.kilo/rules/06-test-engineer.md`)
+4. **Release** — `.kilo/rules/10-release-versioning.md` when shipping user-visible behavior

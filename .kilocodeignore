@@ -1,0 +1,162 @@
+# =============================================================================
+# .kilocodeignore — ZeroAgent Studio
+# =============================================================================
+# Files Kilo Code must NOT load into context. Standard gitignore syntax.
+#
+# In Kilo v7 this file is the legacy mechanism; the modern equivalent is
+# `permission.read` / `permission.edit` deny rules in `.kilo/kilo.jsonc`
+# (see the `permission` block there). The IgnoreMigrator still reads this
+# file and converts patterns into deny rules on `read` and `edit` tools, so
+# keeping it in sync is defense-in-depth: the patterns apply even if
+# kilo.jsonc is missing, misconfigured, or being read by a legacy extension.
+#
+# Mirror of `.cursorignore` for symmetry across coding agents. The two files
+# MUST stay in sync — if you add a pattern here, add it there too (and to
+# `.gitignore` if the path is also ephemeral on disk).
+#
+# IMPORTANT — track on purpose, do NOT add here:
+#   .kilo/rules/**          Architecture & quality rules
+#   .kilo/skills/**        Portable workflow skills
+#   .kilo/agents/**        Specialized personas
+#   .kilo/command/**       Slash commands
+#
+# Companion files:
+#   .gitignore             What Git must not track
+#   .cursorignore          Mirror for Cursor
+#   .kilo/kilo.jsonc       Kilo config (permissions, agents, instructions)
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Dependencies & build artifacts (large, regenerated, never source-of-truth)
+# -----------------------------------------------------------------------------
+node_modules/
+dist/
+dist-ssr/
+build/
+out/
+.vite/
+.turbo/
+.cache/
+.parcel-cache/
+.next/
+.nuxt/
+.svelte-kit/
+
+# Source maps & TS build info (regenerated on every build)
+*.map
+*.tsbuildinfo
+.eslintcache
+.prettiercache
+.stylelintcache
+
+# -----------------------------------------------------------------------------
+# Ephemeral AI assistant state — local only, regenerated every session
+# -----------------------------------------------------------------------------
+# Kilo local sandbox (worktrees, plans, agent-manager state)
+.kilo/plans/
+.kilo/worktrees/
+.kilo/agent-manager.json
+.kilo/sessions/
+.kilo/logs/
+.kilo/scratch/
+.kilo/snapshots/
+
+# Cursor plans / scratchpads (cross-agent hygiene)
+.cursor/plans/
+.cursor/scratch/
+.cursor/snapshots/
+.cursor/worktrees/
+.claude/plans/
+.claude/settings.local.json
+.aider*
+.aider.chat.history*
+
+# Generic plan files anywhere in the tree
+**/plans/
+**/plan.md
+**/plans.md
+**/*-plan.md
+**/*-plans.md
+**/plan-*.md
+**/plans-*.md
+**/EXECUTION_PLAN.md
+**/execution-plan.md
+
+# -----------------------------------------------------------------------------
+# Local sandbox state (debugging helpers, MCP snapshots, ephemeral data)
+# -----------------------------------------------------------------------------
+.playwright-mcp/
+.mcp/
+.tmp/
+tmp/
+*.tmp
+*.bak
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# -----------------------------------------------------------------------------
+# Secrets & credentials — defense in depth even though .gitignore also blocks
+# -----------------------------------------------------------------------------
+.env
+.env.*
+.envrc
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*id_rsa*
+*id_ed25519*
+*id_ecdsa*
+*.gpg
+*.asc
+.netrc
+.aws/
+.gcp/
+.azure/
+.gcloud/
+.ssh/
+credentials/
+secrets/
+
+# -----------------------------------------------------------------------------
+# Logs & debug noise
+# -----------------------------------------------------------------------------
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+*.tsbuild.log
+
+# -----------------------------------------------------------------------------
+# Test artifacts & coverage
+# -----------------------------------------------------------------------------
+coverage/
+coverage-out.txt
+test-results/
+playwright-report/
+playwright/.cache/
+.vitest-cache/
+cypress/videos/
+cypress/screenshots/
+lcov.info
+
+# -----------------------------------------------------------------------------
+# IDE & OS noise (keep shared editorconfig + .vscode/extensions.json tracked)
+# -----------------------------------------------------------------------------
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.history/
